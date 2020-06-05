@@ -12,8 +12,9 @@ console.log(process.env.API_TOKEN)
 const app = express()
 
 app.use(morgan('dev'))
-app.use(helmet())
 app.use(cors())
+app.use(helmet())
+
 
 app.use(function validateBearerToken(req, res, next) {
     const apiToken = process.env.API_TOKEN
@@ -29,7 +30,7 @@ app.use(function validateBearerToken(req, res, next) {
 })
 
 app.get('/movie', function handleGetMovie(req, res) {
-    let response = MOVIEDEX
+    let response = MOVIEDEX;
 
     //the API responds with an array of full movie entries for the search results
 
@@ -41,7 +42,7 @@ app.get('/movie', function handleGetMovie(req, res) {
     //.includes()
     if (req.query.genre) {
         response = response.filter(movie => 
-            movie.genre.includes(req.query.genre)
+            movie.genre.toLowerCase().includes(req.query.genre.toLowerCase())
         )
     }
 
@@ -59,17 +60,15 @@ app.get('/movie', function handleGetMovie(req, res) {
     //users are searching for movies with an avg_vote 
     //that is greater than or equal to supplied number
     if (req.query.avg_vote) {
-        if (avg_vote >= req.query.avg_vote) {
-            response = response.filter(movie => 
-                movie.avg_vote.includes(req.query.avg_vote)
-            )
-        }
+        response = response.filter(movie => 
+            Number(movie.avg_vote) >= Number(req.query.avg_vote)
+        )
     }
 
     res.json(response)
 })
 
-const PORT = 8000
+const PORT = 9000
 
 app.listen(PORT, () => {
   console.log(`Server listening at http://localhost:${PORT}`)
